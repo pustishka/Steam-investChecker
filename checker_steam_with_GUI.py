@@ -43,11 +43,11 @@ def count_lines():
         return count_line
 
 
-name_text = generate_elements(data_menu, text_='Item')
+generate_elements(data_menu, text_='Item')
 name_entry = generate_entry(data_menu, text_='name', row_=1)
-url_text = generate_elements(data_menu, text_='Url', column_=1)
+generate_elements(data_menu, text_='Url', column_=1)
 url_entry = generate_entry(data_menu, width_=16, text_='Url', row_=1, column_=1)
-amount_text = generate_elements(data_menu, text_='Amount', column_=2)
+generate_elements(data_menu, text_='Amount', column_=2)
 amount_entry = generate_entry(data_menu, text_='Amount', row_=1, column_=2)
 text_process = scrolledtext.ScrolledText(data_menu, width=38, height=12)
 text_process.grid(row=2, column=0, columnspan=3)
@@ -60,7 +60,7 @@ progress_bar.grid(row=3, column=0, columnspan=3)
 
 
 def load():
-    with open('test.txt', 'r', encoding='utf-8') as r:
+    with open('urls.txt', 'r', encoding='utf-8') as r:
         text_process.delete("1.0", "end")
         for line in r:
             text_process.insert(INSERT, f'{line}''\n')
@@ -70,17 +70,13 @@ def add_item():
     if name_entry.get() == '' or url_entry.get == '' or amount_entry.get() == '':
         messagebox.showerror('Error!', 'Fill all fields!')
         return None
-    with open('test.txt', 'a', encoding='utf-8') as f:
+    with open('urls.txt', 'a', encoding='utf-8') as f:
         get_data = '\n'f'{name_entry.get() + ", " + url_entry.get() + ", " + amount_entry.get()}'
         f.write(get_data)
     text_process.insert(INSERT, '\n'f'{name_entry.get()}, {url_entry.get()}, {amount_entry.get()}')
 
 
 result = []
-
-
-# login = 'JLfDSN'
-# password = '3TJDuu'
 
 
 def multi_calculate():
@@ -102,14 +98,6 @@ def get_free_proxies():
             proxies.append(host)
         except IndexError:
             continue
-    # for i in range(len(proxies)):
-    #     try:
-    #         prox = {
-    #             'https': f'http://{proxies[i]}'
-    #         }
-    #     except Exception:
-    #         continue
-    # print(prox)
     return proxies
 
 
@@ -118,9 +106,6 @@ headers = {
 }
 cookie = {'steamLoginSecure': '12345'}
 
-
-# free_proxies = get_free_proxies()
-# print(free_proxies)
 
 def check_price(url: str, count: int):
     global check_price, calc_btn, count_lines
@@ -136,8 +121,8 @@ def check_price(url: str, count: int):
     text_process.insert(INSERT, '\n'f'{name_ + " " + str(current_case) + "$"}')
     count_li = count_lines()
     progress_bar['value'] += 100 / count_li
-    calc_btn = Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
-                      font=('Arial', 13), state='disabled').grid(row=2, column=0, columnspan=3)
+    Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
+           font=('Arial', 13), state='disabled').grid(row=2, column=0, columnspan=3)
     name_entry.config(state='disabled')
     url_entry.config(state='disabled')
     amount_entry.config(state='disabled')
@@ -148,8 +133,8 @@ Button(text='Add item', width=11, bg='#FE9A2E', height=1, command=add_item, font
                                                                                                      sticky='nw')
 Button(text='Load file', width=11, bg='#58FA58', height=1, command=load,
        font=('Arial', 13)).grid(row=2, column=0, columnspan=3, sticky='ne')
-calc_btn = Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
-                  font=('Arial', 13)).grid(row=2, column=0, columnspan=3)
+Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
+       font=('Arial', 13)).grid(row=2, column=0, columnspan=3)
 
 
 def calculate_file():
@@ -166,18 +151,17 @@ def calculate_file():
                 time.sleep(2.5)
                 try:
                     check_price(url, amount)
-                    checker=False
+                    checker = False
                 except Exception:
-                    print("OPANA")
-
+                    print("Steam triggered!")
     today = str(date.today())
     text_process.insert(INSERT, '\n' + '*' * 20)
     data = str(int(sum(result))) + '$  '
     with open('invest.txt', 'a', encoding='utf-8') as f:
         f.write('\n' + data) + f.write(today)
     text_process.insert(INSERT, '\n'f'{data}  {today}')
-    calc_btn = Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
-                      font=('Arial', 13), state='normal').grid(row=2, column=0, columnspan=3)
+    Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
+           font=('Arial', 13), state='normal').grid(row=2, column=0, columnspan=3)
     name_entry.config(state='normal')
     url_entry.config(state='normal')
     amount_entry.config(state='normal')
