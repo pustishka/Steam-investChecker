@@ -54,16 +54,22 @@ text_process.grid(row=2, column=0, columnspan=3)
 style = ttk.Style()
 style.theme_use('default')
 style.configure("black.Horizontal.TProgressbar", background='#5882FA')
-progress_bar = Progressbar(data_menu, length=200, style='black.Horizontal.TProgressbar')
+progress_bar = Progressbar(data_menu, length=196, style='black.Horizontal.TProgressbar')
 progress_bar['value'] = 0
-progress_bar.grid(row=3, column=0, columnspan=3)
+progress_bar.grid(row=3, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
 
 
 def load():
     with open('urls.txt', 'r', encoding='utf-8') as r:
         text_process.delete("1.0", "end")
         for line in r:
-            text_process.insert(INSERT, f'{line}''\n')
+            text_process.insert(INSERT, f'{line}')
+
+
+def save():
+    open('urls.txt', 'w').close()
+    with open('urls.txt', 'a', encoding='utf-8') as f:
+        f.write(text_process.get('1.0', 'end'))
 
 
 def add_item():
@@ -73,7 +79,7 @@ def add_item():
     with open('urls.txt', 'a', encoding='utf-8') as f:
         get_data = '\n'f'{name_entry.get() + ", " + url_entry.get() + ", " + amount_entry.get()}'
         f.write(get_data)
-    text_process.insert(INSERT, '\n'f'{name_entry.get()}, {url_entry.get()}, {amount_entry.get()}')
+    text_process.insert(INSERT, f'{name_entry.get()}, {url_entry.get()}, {amount_entry.get()}''\n')
 
 
 result = []
@@ -121,24 +127,30 @@ def check_price(url: str, count: int):
     text_process.insert(INSERT, '\n'f'{name_ + " " + str(current_case) + "$"}')
     count_li = count_lines()
     progress_bar['value'] += 100 / count_li
-    Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
-           font=('Arial', 13), state='disabled').grid(row=2, column=0, columnspan=3)
+    Button(text='Calculate', width=10, bg='#DCDCDC', height=1, command=multi_calculate,
+           font=('Arial', 13), state='disabled').grid(row=2, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
     name_entry.config(state='disabled')
     url_entry.config(state='disabled')
     amount_entry.config(state='disabled')
 
 
-Button(text='Add item', width=11, bg='#FE9A2E', height=1, command=add_item, font=('Arial', 13)).grid(row=2, column=0,
+Button(text='Add item', width=10, bg='#FE9A2E', height=1, command=add_item, font=('Arial', 13)).grid(row=2, column=0,
                                                                                                      columnspan=3,
                                                                                                      sticky='nw')
-Button(text='Load file', width=11, bg='#58FA58', height=1, command=load,
-       font=('Arial', 13)).grid(row=2, column=0, columnspan=3, sticky='ne')
-Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
-       font=('Arial', 13)).grid(row=2, column=0, columnspan=3)
+Button(text='  Load', width=3, bg='#81F781', height=1, command=load,
+       font=('Arial', 13)).grid(row=2, column=0, columnspan=3, padx=53, pady=0, ipadx=10, ipady=0, sticky='ne')
+Button(text='Calculate', width=10, bg='#81F781', height=1, command=multi_calculate,
+       font=('Arial', 13)).grid(row=2, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
+Button(text='Save', width=2, height=1, bg='#81F781', font=('Arial', 13), command=save).grid(row=2, column=0,
+                                                                                            columnspan=3,
+                                                                                            sticky='ne', padx=0, pady=0,
+                                                                                            ipadx=13,
+                                                                                            ipady=0)
 
 
 def calculate_file():
     global name_, result
+    progress_bar['value'] = 0
     text_process.delete("1.0", "end")
     with open('urls.txt', 'r', encoding='utf-8') as r:
         for line in r:
@@ -160,8 +172,8 @@ def calculate_file():
     with open('invest.txt', 'a', encoding='utf-8') as f:
         f.write('\n' + data) + f.write(today)
     text_process.insert(INSERT, '\n'f'{data}  {today}')
-    Button(text='Calculate', width=12, bg='#58FA58', height=1, command=multi_calculate,
-           font=('Arial', 13), state='normal').grid(row=2, column=0, columnspan=3)
+    Button(text='Calculate', width=10, bg='#81F781', height=1, command=multi_calculate,
+           font=('Arial', 13), state='normal').grid(row=2, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
     name_entry.config(state='normal')
     url_entry.config(state='normal')
     amount_entry.config(state='normal')
