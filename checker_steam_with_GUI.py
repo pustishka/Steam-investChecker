@@ -8,7 +8,7 @@ from datetime import date
 from threading import Thread
 from tkinter.ttk import Progressbar
 from tkinter import ttk
-
+import sys
 root = Tk()
 
 
@@ -59,15 +59,15 @@ def count_lines():
 generate_elements(data_menu, text_='Item')
 name_entry = generate_entry(data_menu, text_entry='name', row_=1)
 generate_elements(data_menu, text_='Url', column_=1)
-url_entry = generate_entry(data_menu, width_=16, text_entry='Url', row_=1, column_=1)
+url_entry = generate_entry(data_menu, width_=20, text_entry='Url', row_=1, column_=1)
 generate_elements(data_menu, text_='Amount', column_=2)
 amount_entry = generate_entry(data_menu, text_entry='Amount', row_=1, column_=2)
-text_process = scrolledtext.ScrolledText(data_menu, width=38, height=12)
+text_process = scrolledtext.ScrolledText(data_menu, width=43, height=12)
 text_process.grid(row=2, column=0, columnspan=3)
 style = ttk.Style()
 style.theme_use('default')
 style.configure("black.Horizontal.TProgressbar", background='#5882FA')
-progress_bar = Progressbar(data_menu, length=196, style='black.Horizontal.TProgressbar')
+progress_bar = Progressbar(data_menu, length=235, style='black.Horizontal.TProgressbar')
 progress_bar['value'] = 0
 progress_bar.grid(row=3, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
 
@@ -103,6 +103,12 @@ def multi_calculate():
     th = Thread(target=calculate_file)
     th.start()
 
+# def multi_calculate():
+#     global thread_stop
+#     if c
+
+def stop():
+    sys.exit()
 
 def get_free_proxies():
     url = "https://free-proxy-list.net/"
@@ -125,6 +131,14 @@ headers = {
 }
 cookie = {'steamLoginSecure': '12345'}
 
+generate_button(text_btn='Add item', width_btn=9, bg_btn='#FE9A2E', sticky_btn='nw', padx_btn=0, pady_btn=0,
+                ipadx_btn=0, ipady_btn=0, command_btn=add_item)
+generate_button(text_btn=' Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
+calc = generate_button(text_btn='Calculate', width_btn=10, command_btn=multi_calculate, padx_btn=91, ipadx_btn=12,
+                sticky_btn='nw')
+generate_button(text_btn='Save', command_btn=save)
+generate_button(text_btn='✕', width_btn=1, bg_btn='#FE2E2E', padx_btn=105, pady_btn=0,command_btn=stop)
+
 
 def check_price(url: str, count: int):
     global check_price, calc_btn, count_lines
@@ -140,46 +154,19 @@ def check_price(url: str, count: int):
     text_process.insert(INSERT, '\n'f'{name_ + " " + str(current_case) + "$"}')
     count_li = count_lines()
     progress_bar['value'] += 100 / count_li
-    Button(text='Calculate', width=10, bg='#DCDCDC', height=1, command=multi_calculate,
-           font=('Arial', 13), state='disabled').grid(row=2, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
-    Button(text='  Load', width=3, bg='#DCDCDC', height=1, command=load,
-           font=('Arial', 13), state='disabled').grid(row=2, column=0, columnspan=3, padx=53, pady=0, ipadx=10, ipady=0,
-                                                      sticky='ne')
-    Button(text='Save', width=2, height=1, bg='#DCDCDC', font=('Arial', 13), state='disabled', command=save).grid(row=2,
-                                                                                                                  column=0,
-                                                                                                                  columnspan=3,
-                                                                                                                  sticky='ne',
-                                                                                                                  padx=0,
-                                                                                                                  pady=0,
-                                                                                                                  ipadx=13,
-                                                                                                                  ipady=0)
-    Button(text='Add item', width=10, bg='#DCDCDC', state='disabled', height=1, command=add_item,
-           font=('Arial', 13)).grid(row=2,
-                                    column=0,
-                                    columnspan=3,
-                                    sticky='nw')
+    generate_button(text_btn='Add item', width_btn=9, bg_btn='#DCDCDC', state_btn='disabled',
+                    sticky_btn='nw', padx_btn=0,
+                    pady_btn=0,
+                    ipadx_btn=0, ipady_btn=0, command_btn=add_item)
+    generate_button(text_btn='Calculate', width_btn=10, bg_btn='#DCDCDC', state_btn='disabled',
+                    command_btn=multi_calculate, padx_btn=91, ipadx_btn=12,
+                    sticky_btn='nw')
+    generate_button(text_btn='Save', command_btn=save, bg_btn='#DCDCDC', state_btn='disabled')
+    generate_button(text_btn=' Load', width_btn=3, bg_btn='#DCDCDC', state_btn='disabled', padx_btn=53, ipadx_btn=10,
+                    command_btn=load)
     name_entry.config(state='disabled')
     url_entry.config(state='disabled')
     amount_entry.config(state='disabled')
-
-
-add_btn = generate_button(text_btn='Add item', width_btn=10, bg_btn='#FE9A2E', sticky_btn='nw', padx_btn=0, pady_btn=0,
-                          ipadx_btn=0, ipady_btn=0, command_btn=add_item)
-# Button(text='Add item', width=10, bg='#FE9A2E', height=1, command=add_item, font=('Arial', 13)).grid(row=2, column=0,
-#                                                                                                      columnspan=3,
-#                                                                                                      sticky='nw')
-load_btn = generate_button(text_btn='  Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
-# Button(text='  Load', width=3, bg='#81F781', height=1, command=load,
-#        font=('Arial', 13)).grid(row=2, column=0, columnspan=3, padx=53, pady=0, ipadx=10, ipady=0, sticky='ne')
-calc_btn = generate_button(text_btn='Calculate', width_btn=10, command_btn=multi_calculate, padx_btn=3, ipadx_btn=12,sticky_btn=None)
-# Button(text='Calculate', width=10, bg='#81F781', height=1, command=multi_calculate,
-#        font=('Arial', 13)).grid(row=2, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
-save_btn = generate_button(text_btn='Save', command_btn=save)
-# Button(text='Save', width=2, height=1, bg='#81F781', font=('Arial', 13), command=save).grid(row=2, column=0,
-#                                                                                             columnspan=3,
-#                                                                                             sticky='ne', padx=0, pady=0,
-#                                                                                             ipadx=13,
-#                                                                                             ipady=0)
 
 
 def calculate_file():
@@ -206,24 +193,13 @@ def calculate_file():
     with open('invest.txt', 'a', encoding='utf-8') as f:
         f.write('\n' + data) + f.write(today)
     text_process.insert(INSERT, '\n'f'{data}  {today}')
-    Button(text='Calculate', width=10, bg='#81F781', height=1, command=multi_calculate,
-           font=('Arial', 13), state='normal').grid(row=2, column=0, columnspan=3, padx=3, pady=0, ipadx=12, ipady=0)
-    Button(text='Add item', width=10, bg='#FE9A2E', height=1, command=add_item, font=('Arial', 13),
-           state='normal').grid(row=2,
-                                column=0,
-                                columnspan=3,
-                                sticky='nw')
-    Button(text='  Load', width=3, bg='#81F781', height=1, command=load,
-           font=('Arial', 13), state='normal').grid(row=2, column=0, columnspan=3, padx=53, pady=0, ipadx=10, ipady=0,
-                                                    sticky='ne')
-    Button(text='Save', width=2, height=1, bg='#81F781', font=('Arial', 13), command=save, state='normal').grid(row=2,
-                                                                                                                column=0,
-                                                                                                                columnspan=3,
-                                                                                                                sticky='ne',
-                                                                                                                padx=0,
-                                                                                                                pady=0,
-                                                                                                                ipadx=13,
-                                                                                                                ipady=0)
+    generate_button(text_btn='Add item', width_btn=9, bg_btn='#FE9A2E', sticky_btn='nw', padx_btn=0,
+                    pady_btn=0,
+                    ipadx_btn=0, ipady_btn=0, command_btn=add_item)
+    generate_button(text_btn=' Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
+    generate_button(text_btn='Calculate', width_btn=10, command_btn=multi_calculate, padx_btn=91, ipadx_btn=12,
+                    sticky_btn='nw')
+    generate_button(text_btn='Save', command_btn=save)
     name_entry.config(state='normal')
     url_entry.config(state='normal')
     amount_entry.config(state='normal')
