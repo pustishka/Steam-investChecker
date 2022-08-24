@@ -9,8 +9,13 @@ from datetime import date
 from threading import Thread
 from tkinter.ttk import Progressbar
 from tkinter import ttk
-import sys
+from multiprocessing import Process
+
 root = Tk()
+
+th = None
+stop_process = False
+root.title('SteamInvestChecker')
 
 
 def generate_frame():
@@ -38,7 +43,7 @@ def generate_entry(data_menu, text_entry: str, width_: int = 6, font_name: str =
 
 
 def generate_button(text_btn: str, width_btn: int = 2, height_btn: int = 1, bg_btn: str = '#81F781',
-                    font_name: str = 'Arial', font_size: str = 13, state_btn: str = 'normal', command_btn=None,
+                    font_name: str = 'Arial', font_size: str = 13, state_btn: str = "normal", command_btn=None,
                     row_btn: int = 2,
                     column_btn: int = 0,
                     columnspan_btn: int = 3, sticky_btn: str = 'ne', padx_btn: int = 0, pady_btn: int = 0,
@@ -52,7 +57,7 @@ def generate_button(text_btn: str, width_btn: int = 2, height_btn: int = 1, bg_b
 def count_lines():
     count_line = 0
     with open('urls.txt', 'r', encoding='utf-8') as r:
-        for line in r:
+        for _ in r:
             count_line += 1
         return count_line
 
@@ -100,16 +105,28 @@ result = []
 
 
 def multi_calculate():
+    global th
     progress_bar['value'] = 0
     th = Thread(target=calculate_file)
+    th.daemon = True
     th.start()
 
-# def multi_calculate():
-#     global thread_stop
-#     if c
 
 def stop():
-    sys.exit()
+    global stop_process, th
+    stop_process = True
+    th.join()
+    generate_button(text_btn='Add item', width_btn=9, bg_btn='#FE9A2E', sticky_btn='nw', padx_btn=0,
+                    pady_btn=0,
+                    ipadx_btn=0, ipady_btn=0, command_btn=add_item)
+    generate_button(text_btn=' Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
+    generate_button(text_btn='Calculate', width_btn=10, command_btn=multi_calculate, padx_btn=91, ipadx_btn=12,
+                    sticky_btn='nw')
+    generate_button(text_btn='Save', command_btn=save)
+    name_entry.config(state='normal')
+    url_entry.config(state='normal')
+    amount_entry.config(state='normal')
+
 
 def get_free_proxies():
     url = "https://free-proxy-list.net/"
@@ -127,6 +144,11 @@ def get_free_proxies():
     return proxies
 
 
+def stop_threading():
+    thr = Thread(target=stop)
+    thr.start()
+
+
 headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.81 Safari/537.36 Edg/104.0.1293.47'
 }
@@ -136,9 +158,9 @@ generate_button(text_btn='Add item', width_btn=9, bg_btn='#FE9A2E', sticky_btn='
                 ipadx_btn=0, ipady_btn=0, command_btn=add_item)
 generate_button(text_btn=' Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
 calc = generate_button(text_btn='Calculate', width_btn=10, command_btn=multi_calculate, padx_btn=91, ipadx_btn=12,
-                sticky_btn='nw')
+                       sticky_btn='nw')
 generate_button(text_btn='Save', command_btn=save)
-generate_button(text_btn='✕', width_btn=1, bg_btn='#FE2E2E', padx_btn=105, pady_btn=0,command_btn=stop)
+generate_button(text_btn='✕', width_btn=1, bg_btn='#FE2E2E', padx_btn=105, pady_btn=0, command_btn=stop_threading)
 
 
 def check_price(url: str, count: int):
@@ -171,40 +193,37 @@ def check_price(url: str, count: int):
 
 
 def calculate_file():
-    global name_, result
+    global name_, result, stop_process
     progress_bar['value'] = 0
     text_process.delete("1.0", "end")
     with open('urls.txt', 'r', encoding='utf-8') as r:
         for line in r:
-            content = line.replace('\n', '').split(',')
+            if stop_process:
+                break
+            content = line.strip().replace('\n', '').split(',')
+            if len(content) != 3:
+                continue
             name_ = content[0]
             url = content[1]
             amount = int(content[2])
             checker = True
-            while checker:
+            while checker and not stop_process:
                 time.sleep(2.5)
                 try:
                     check_price(url, amount)
                     checker = False
                 except Exception:
                     print("Steam triggered!")
-    today = str(date.today())
-    text_process.insert(INSERT, '\n' + '*' * 20)
-    data = str(int(sum(result))) + '$  '
-    with open('invest.txt', 'a', encoding='utf-8') as f:
-        f.write('\n' + data) + f.write(today)
-    text_process.insert(INSERT, '\n'f'{data}  {today}')
-    generate_button(text_btn='Add item', width_btn=9, bg_btn='#FE9A2E', sticky_btn='nw', padx_btn=0,
-                    pady_btn=0,
-                    ipadx_btn=0, ipady_btn=0, command_btn=add_item)
-    generate_button(text_btn=' Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
-    generate_button(text_btn='Calculate', width_btn=10, command_btn=multi_calculate, padx_btn=91, ipadx_btn=12,
-                    sticky_btn='nw')
-    generate_button(text_btn='Save', command_btn=save)
-    name_entry.config(state='normal')
-    url_entry.config(state='normal')
-    amount_entry.config(state='normal')
-    result = []
+    if not stop_process:
+        today = str(date.today())
+        text_process.insert(INSERT, '\n' + '*' * 20)
+        data = str(int(sum(result))) + '$  '
+        with open('invest.txt', 'a', encoding='utf-8') as f:
+            f.write('\n' + data) + f.write(today)
+        text_process.insert(INSERT, '\n'f'{data}  {today}')
+
+        result = []
+    stop_process = False
 
 
 data_menu.mainloop()
