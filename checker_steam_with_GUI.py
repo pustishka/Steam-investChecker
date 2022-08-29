@@ -1,31 +1,29 @@
-import tkinter
-from tkinter import *
-from tkinter import messagebox
-from tkinter import scrolledtext
-import requests
-from bs4 import BeautifulSoup
 import time
 from datetime import date
 from threading import Thread
+
+from tkinter import messagebox, ttk, scrolledtext, Tk, INSERT
 from tkinter.ttk import Progressbar
-from tkinter import ttk
-from multiprocessing import Process
 
-root = Tk()
-style = ttk.Style(root)
-root.tk.call('source', 'awthemes/awdark.tcl')
-style.theme_use('awdark')
+import requests
+from bs4 import BeautifulSoup
 
-th = None
-stop_process = False
-root.title('SteamInvestChecker')
 
 
 def generate_frame():
-    frame_name = ttk.Frame(root)
+    frame_name = ttk.Frame(root)  # Create main frame of GUI
     frame_name.grid(row=0, column=0, sticky='news')
     return frame_name
 
+
+def create_start_buttons():
+    generate_button(text_btn='Add item', width_btn=11, sticky_btn='nw', x_btn=0, y_btn=0, ix_btn=0,
+                    iy_btn=0, command_btn=add_item)  # Create button "Add item"
+    generate_button(text_btn=' Load', width_btn=3, x_btn=53, ix_btn=10, command_btn=load)  # Create button "Load"
+    generate_button(text_btn='Calculate', width_btn=11, command_btn=multi_calculate, x_btn=77, ix_btn=12,
+                    sticky_btn='nw')  # Create button "Calculate"
+    generate_button(text_btn='Save', command_btn=save)  # Create button "Save"
+    generate_button(text_btn='✕', width_btn=2, x_btn=105, y_btn=0, command_btn=stop_count_thread)  # Create button "✕"
 
 data_menu = generate_frame()
 data_menu.tkraise()
@@ -37,20 +35,17 @@ def generate_elements(data_menu, text_: str, font_name: str = 'Arial', font_size
     element_name.grid(row=row_, column=column_, sticky=sticky_)
 
 
-def generate_entry(data_menu, text_entry: str, width_: int = 9, font_name: str = 'Arial', font_size: int = 14,
-                   row_: int = 1,
-                   column_: int = 0, style_entry: str = 'Entry'):
-    entry_name = ttk.Entry(data_menu, width=width_, text=text_entry)
+def generate_entry(text_for_entry: str, width_: int = 9, row_: int = 1, column_: int = 0):
+    #  Function for creating entry elements on main frame
+    entry_name = ttk.Entry(data_menu, width=width_, text=text_for_entry)
     entry_name.grid(row=row_, column=column_)
     return entry_name
 
 
-def generate_button(text_btn: str, width_btn: int = 2, height_btn: int = 1, bg_btn: str = '#81F781',
-                    font_name: str = 'Arial', font_size: str = 13, state_btn: str = "normal", command_btn=None,
-                    row_btn: int = 2,
-                    column_btn: int = 0,
-                    columnspan_btn: int = 3, sticky_btn: str = 'ne', padx_btn: int = 0, pady_btn: int = 0,
-                    ipadx_btn: int = 13, ipady_btn: int = 0):
+def generate_button(text_btn: str, width_btn: int = 2, state_btn: str = "normal", command_btn=None, row_btn: int = 2,
+                    column_btn: int = 0, column_span_btn: int = 3, sticky_btn: str = 'ne', x_btn: int = 0,
+                    y_btn: int = 0, ix_btn: int = 13, iy_btn: int = 0):
+    #  Function for creating button on main frame
     button_name = ttk.Button(text=text_btn, width=width_btn,
                          state=state_btn, command=command_btn)
     button_name.grid(row=row_btn, column=column_btn, columnspan=columnspan_btn, sticky=sticky_btn, padx=padx_btn,
@@ -58,7 +53,8 @@ def generate_button(text_btn: str, width_btn: int = 2, height_btn: int = 1, bg_b
 
 
 def count_lines():
-    count_line = 0
+    #  Function for counting lines
+    count_line = 0  # the counter is used later for the correct gradation Progress Bar
     with open('urls.txt', 'r', encoding='utf-8') as r:
         for _ in r:
             count_line += 1
@@ -105,22 +101,21 @@ result = []
 
 
 def multi_calculate():
-    global th
+    global calculation_file_thread
     progress_bar['value'] = 0
-    th = Thread(target=calculate_file)
-    th.daemon = True
-    th.start()
+    calculation_file_thread = Thread(target=calculate_file)
+    calculation_file_thread.daemon = True
+    calculation_file_thread.start()
 
 
 def stop():
-    global stop_process, th
+    global stop_process, calculation_file_thread
     stop_process = True
-    th.join()
-    generate_button(text_btn='Add item', width_btn=11, bg_btn='#FE9A2E', sticky_btn='nw', padx_btn=0,
-                    pady_btn=0,
-                    ipadx_btn=0, ipady_btn=0, command_btn=add_item)
-    generate_button(text_btn=' Load', width_btn=3, padx_btn=53, ipadx_btn=10, command_btn=load)
-    generate_button(text_btn='Calculate', width_btn=11, command_btn=multi_calculate, padx_btn=77, ipadx_btn=12,
+    calculation_file_thread.join()
+    generate_button(text_btn='Add item', width_btn=11, sticky_btn='nw', x_btn=0, y_btn=0, ix_btn=0,
+                    iy_btn=0, command_btn=add_item)
+    generate_button(text_btn=' Load', width_btn=3, x_btn=53, ix_btn=10, command_btn=load)
+    generate_button(text_btn='Calculate', width_btn=11, command_btn=multi_calculate, x_btn=77, ix_btn=12,
                     sticky_btn='nw')
     generate_button(text_btn='Save', command_btn=save)
     name_entry.config(state='normal')
@@ -128,25 +123,9 @@ def stop():
     amount_entry.config(state='normal')
 
 
-def get_free_proxies():
-    url = "https://free-proxy-list.net/"
-    soup1 = BeautifulSoup(requests.get(url).text, "html.parser")
-    proxies = []
-    for row in soup1.find("table", class_='table table-striped table-bordered').find_all("tr")[1:]:
-        tds = row.find_all("td")
-        try:
-            ip = tds[0].text.strip()
-            port = tds[1].text.strip()
-            host = f"{ip}:{port}"
-            proxies.append(host)
-        except IndexError:
-            continue
-    return proxies
-
-
-def stop_threading():
-    thr = Thread(target=stop)
-    thr.start()
+def stop_count_thread():
+    stopping_thread = Thread(target=stop)
+    stopping_thread.start()
 
 
 headers = {
@@ -164,36 +143,29 @@ generate_button(text_btn='✕', width_btn=2, bg_btn='#FE2E2E', padx_btn=105, pad
 
 
 def check_price(url: str, count: int):
-    global check_price, calc_btn, count_lines
-    # responce = requests.get(url, headers=headers, proxies=free_proxies).text
-    # responce = requests.get(url, headers=headers, proxies={'https': f'http://{proxy}'}, cookies=cookie).text
-    responce = requests.get(url, headers=headers, cookies=cookie).text
-    soup = BeautifulSoup(responce, 'lxml')
-    block = soup.find('span', class_="normal_price")
-    checking = block.find_all('span')[1].text
-    total_check_price = float(checking.strip('$').strip('USD'))
-    current_case = total_check_price * count
+    response = requests.get(url).text
+    soup = BeautifulSoup(response, 'lxml')
+    main_block = soup.find('span', class_="normal_price")
+    price_block = main_block.find_all('span')[1].text
+    striped_price = float(price_block.strip('$').strip('USD'))
+    current_case = striped_price * count
     result.append(current_case)
-    text_process.insert(INSERT, '\n'f'{name_ + " " + str(current_case) + "$"}')
-    count_li = count_lines()
-    progress_bar['value'] += 100 / count_li
-    generate_button(text_btn='Add item', width_btn=11, bg_btn='#DCDCDC', state_btn='disabled',
-                    sticky_btn='nw', padx_btn=0,
-                    pady_btn=0,
-                    ipadx_btn=0, ipady_btn=0, command_btn=add_item)
-    generate_button(text_btn='Calculate', width_btn=11, bg_btn='#DCDCDC', state_btn='disabled',
-                    command_btn=multi_calculate, padx_btn=77, ipadx_btn=12,
-                    sticky_btn='nw')
-    generate_button(text_btn='Save', command_btn=save, bg_btn='#DCDCDC', state_btn='disabled')
-    generate_button(text_btn=' Load', width_btn=3, bg_btn='#DCDCDC', state_btn='disabled', padx_btn=53, ipadx_btn=10,
-                    command_btn=load)
+    text_process.insert(INSERT, '\n'f'{name_item + " " + str(current_case) + "$"}')
+    count_of_lines = count_lines()
+    progress_bar['value'] += 100 / count_of_lines
+    generate_button(text_btn='Add item', width_btn=11, state_btn='disabled', sticky_btn='nw', x_btn=0, y_btn=0,
+                    ix_btn=0, iy_btn=0, command_btn=add_item)
+    generate_button(text_btn='Calculate', width_btn=11, state_btn='disabled', command_btn=multi_calculate, x_btn=77,
+                    ix_btn=12, sticky_btn='nw')
+    generate_button(text_btn='Save', command_btn=save, state_btn='disabled')
+    generate_button(text_btn=' Load', width_btn=3, state_btn='disabled', x_btn=53, ix_btn=10, command_btn=load)
     name_entry.config(state='disabled')
     url_entry.config(state='disabled')
     amount_entry.config(state='disabled')
 
 
 def calculate_file():
-    global name_, result, stop_process
+    global name_item, result, stop_process
     progress_bar['value'] = 0
     text_process.delete("1.0", "end")
     with open('urls.txt', 'r', encoding='utf-8') as r:
@@ -203,14 +175,14 @@ def calculate_file():
             content = line.strip().replace('\n', '').split(',')
             if len(content) != 3:
                 continue
-            name_ = content[0]
-            url = content[1]
-            amount = int(content[2])
+            name_item = content[0]
+            url_item = content[1]
+            amount_item = int(content[2])
             checker = True
             while checker and not stop_process:
                 time.sleep(2.5)
                 try:
-                    check_price(url, amount)
+                    check_price(url_item, amount_item)
                     checker = False
                 except Exception:
                     print("Steam triggered!")
