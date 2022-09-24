@@ -145,11 +145,12 @@ def calculate_file():
                     print("Steam triggered!")
     if not stop_process:
         today = str(date.today())
-        text_process.insert(INSERT, '\n' + '*' * 20)
+        text_process.insert(INSERT, '\n' + '-' * 32)
         data = str(int(sum(result))) + '$  '
         with open('invest.txt', 'a', encoding='utf-8') as f:
             f.write('\n' + data) + f.write(today)
         text_process.insert(INSERT, '\n'f'{data}  {today}')
+        text_process.insert(INSERT, '\n' + '-' * 32)
         result = []
     stop_process = False  # Flags to control calculation threads
 
@@ -176,7 +177,8 @@ def check_price(url: str, count: int):
     striped_price = float(price_block.strip('$').strip('USD'))  # Strip "$" sign and strip 'USD' for clear float
     current_case = striped_price * count
     result.append(current_case)  # Add sum in result list
-    text_process.insert(INSERT, '\n'f'{name_item + " " + str(current_case) + "$"}')
+    str_len = 30 - int(len(name_item))
+    text_process.insert(INSERT, '\n'f'{name_item + " " + (" " + str(current_case)).rjust(str_len, ".") + "$"}')
     count_of_lines = count_lines()  # Call count lines function
     progress_bar['value'] += 100 / count_of_lines
     # Turn all elements on frame in "disabled" condition for to avoid unnecessary clicks
