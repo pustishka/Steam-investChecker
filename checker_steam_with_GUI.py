@@ -145,12 +145,13 @@ def calculate_file():
                     print("Steam triggered!")
     if not stop_process:
         today = str(date.today())
-        text_process.insert(INSERT, '\n' + '-' * 32)
+        text_process.insert(INSERT, '\n' + '-' * 35)
         data = str(int(sum(result))) + '$  '
         with open('invest.txt', 'a', encoding='utf-8') as f:
             f.write('\n' + data) + f.write(today)
-        text_process.insert(INSERT, '\n'f'{data}  {today}')
-        text_process.insert(INSERT, '\n' + '-' * 32)
+        # text_process.insert(INSERT, '\n'f'{data}  {today}')
+        text_process.insert(INSERT, '\n'f'{today}{(" " + str(data)).rjust(str_len, " ")}')
+        text_process.insert(INSERT, '\n' + '-' * 35)
         result = []
     stop_process = False  # Flags to control calculation threads
 
@@ -170,6 +171,7 @@ generate_button(text_btn='✕', width_btn=2, bg_btn='#FE2E2E', padx_btn=105, pad
 
 
 def check_price(url: str, count: int):
+    global str_len, current_case
     response = requests.get(url).text  # Parsing data in text
     soup = BeautifulSoup(response, 'lxml')
     main_block = soup.find('span', class_="normal_price")
@@ -177,7 +179,7 @@ def check_price(url: str, count: int):
     striped_price = float(price_block.strip('$').strip('USD'))  # Strip "$" sign and strip 'USD' for clear float
     current_case = striped_price * count
     result.append(current_case)  # Add sum in result list
-    str_len = 30 - int(len(name_item))
+    str_len = 33 - int(len(name_item))
     text_process.insert(INSERT, '\n'f'{name_item + " " + (" " + str(current_case)).rjust(str_len, ".") + "$"}')
     count_of_lines = count_lines()  # Call count lines function
     progress_bar['value'] += 100 / count_of_lines
