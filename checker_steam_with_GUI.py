@@ -147,10 +147,16 @@ def calculate_file():
         today = str(date.today())
         text_process.insert(INSERT, '\n' + '-' * 35)
         data = str(int(sum(result))) + '$  '
+        with open('invest.txt', 'r', encoding='utf-8') as f:  # Open file for view last line for calculation diff
+            first_line = f.readline()
+            for last_line in f:
+                pass
+        last_line_lst = last_line.split('$')
+        diff_data = int(sum(result)) - int(last_line_lst[0])
+        print(diff_data)
         with open('invest.txt', 'a', encoding='utf-8') as f:
             f.write('\n' + data) + f.write(today)
-        # text_process.insert(INSERT, '\n'f'{data}  {today}')
-        text_process.insert(INSERT, '\n'f'{today}{(" " + str(data)).rjust(str_len, " ")}')
+        text_process.insert(INSERT, '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(13, " ")}{data}')
         text_process.insert(INSERT, '\n' + '-' * 35)
         result = []
     stop_process = False  # Flags to control calculation threads
