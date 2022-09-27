@@ -156,7 +156,13 @@ def calculate_file():
         print(diff_data)
         with open('invest.txt', 'a', encoding='utf-8') as f:
             f.write('\n' + data) + f.write(today)
-        text_process.insert(INSERT, '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(13, " ")}{data}')
+            if diff_data < 0:
+                text_process.config(fg='#FE2E2E')
+                text_process.insert(INSERT, '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(13, " ")}{data}')
+            else:
+                text_process.config(fg='#01DF01')
+                text_process.insert(INSERT,
+                                    '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(13, " ")}{data}')
         text_process.insert(INSERT, '\n' + '-' * 35)
         result = []
     stop_process = False  # Flags to control calculation threads
