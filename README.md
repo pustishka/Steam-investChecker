@@ -2,7 +2,7 @@
 ---
 ### How to start?
 ```
-Open SiC.exe
+Open SteamInvestChecker.exe
 Enjoy!
 ```
 ### Programm include:
