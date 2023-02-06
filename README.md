@@ -1,5 +1,6 @@
 #Steam Invest Checker
 ---
+Steam-invest Checker based on Python, Tkinter, BeautifulSoup4, Requests, Threading
 ### How to start?
 ```
 Open SteamInvestChecker.exe
