@@ -1,6 +1,8 @@
 #Steam Invest Checker
 ---
-Steam-invest Checker based on Python, Tkinter, BeautifulSoup4, Requests, Threading
+Steam-invest Checker based on Python, Tkinter, BeautifulSoup4, Requests, Threading.
+
+Pragram for automatic calculation of the value Steam inventory, allows you tofill in data about your existing Steam inventory with using GUI interface based on Tkinter or take data from txt file. Parse from steam community website prices based on BeautifulSoup4 and Requests, display in the interface the sum of each position + the sum of all items (save the result with the date to txt file). Calculate current profit or loss based on the previous count). Used Threading for fast calculation and fix locked window of checker
 ### How to start?
 ```
 Open SteamInvestChecker.exe
