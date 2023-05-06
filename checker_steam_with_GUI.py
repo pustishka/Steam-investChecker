@@ -169,14 +169,13 @@ def calculate_file():
         diff_data = int(sum(result)) - int(last_line_lst[0])
         with open('invest.txt', 'a', encoding='utf-8') as f:
             f.write('\n' + data) + f.write(today)
+            text_for_process = '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(12, " ")}{data}'
             if diff_data < 0:
                 text_process.config(fg='#FE2E2E')
-                text_process.insert(INSERT,
-                                    '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(13, " ")}{data}')
+                text_process.insert(INSERT, text_for_process)
             else:
                 text_process.config(fg='#01DF01')
-                text_process.insert(INSERT,
-                                    '\n'f'{today.ljust(18, " ")}{(str(int(diff_data)) + "$").ljust(13, " ")}{data}')
+                text_process.insert(INSERT, text_for_process)
         text_process.insert(INSERT, '\n' + '-' * 35)
         result = []
     stop_process = False  # Flags to control calculation threads
@@ -202,9 +201,10 @@ def check_price(url: str, count: int):
     main_block = soup.find('span', class_="normal_price")
     price_block = main_block.find_all('span')[1].text
     striped_price = float(price_block.strip('$').strip('USD'))  # Strip "$" sign and strip 'USD' for clear float
-    current_case = striped_price * count
+    current_case = int(round(striped_price * count))
     result.append(current_case)  # Add sum in result list
     str_len = 33 - int(len(name_item))
+    text_process.config(fg='#ffffff')
     text_process.insert(INSERT, '\n'f'{name_item + " " + (" " + str(current_case)).rjust(str_len, ".") + "$"}')
     count_of_lines = count_lines()  # Call count lines function
     progress_bar['value'] += 100 / count_of_lines
@@ -224,6 +224,7 @@ def check_price(url: str, count: int):
 #  The function belongs to the button "Load", open working file on ScrolledText
 def load():
     with open('urls.txt', 'r', encoding='utf-8') as r:
+        text_process.config(fg='#ffffff')
         text_process.delete("1.0", "end")
         for line in r:
             text_process.insert(INSERT, f'{line}')
